@@ -6,7 +6,7 @@ RUN grep "= */var" /etc/pacman.conf | sed "/= *\/var/s/.*=// ; s/ //" | xargs -n
 
 RUN pacman -Syu --noconfirm
 
-RUN pacman -Sy --noconfirm base dracut linux linux-firmware ostree btrfs-progs e2fsprogs xfsprogs dosfstools skopeo dbus dbus-glib glib2 ostree shadow && pacman -S --clean --noconfirm
+RUN pacman -Sy --noconfirm base dracut linux linux-firmware ostree btrfs-progs e2fsprogs xfsprogs dosfstools skopeo dbus sudo dbus-glib glib2 ostree shadow && pacman -S --clean --noconfirm
 
 # https://github.com/bootc-dev/bootc/issues/1801
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
@@ -29,15 +29,14 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | tee "/usr/lib/ostree/prepare-root.conf"
 
 
-RUN pacman -Sy --noconfirm --needed git base-devel wget && \
+RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     wget https://cdn77.cachyos.org/repo/x86_64/cachyos/yay-12.5.7-1-x86_64.pkg.tar.zst && pacman -U --noconfirm yay-12.5.7-1-x86_64.pkg.tar.zst && \
     runuser -u nobody echo y | LANG=C yay --answerdiff None --answerclean None sway-scroll-git && \
     pacman -Sy --noconfirm gdm && \
     systemctl enable gdm
     
-# Setup a temporary root passwd (changeme) for dev purposes
-# RUN pacman -S whois --noconfirm
-# RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
+RUN useradd -m c && usermod -aG wheel c
+RUN usermod -p "$(echo "changeme" | mkpasswd -s)" c
 
 # https://bootc-dev.github.io/bootc/bootc-images.html#standard-metadata-for-bootc-compatible-images
 LABEL containers.bootc 1
