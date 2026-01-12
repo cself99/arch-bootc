@@ -8,6 +8,15 @@ RUN pacman -Syu --noconfirm
 
 RUN pacman -Sy --noconfirm base dracut linux linux-firmware ostree btrfs-progs e2fsprogs xfsprogs dosfstools skopeo dbus sudo dbus-glib glib2 ostree shadow && pacman -S --clean --noconfirm
 
+
+RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
+    # aur is very questionable
+    wget https://builds.garudalinux.org/repos/chaotic-aur/x86_64/aura-4.1.0-1-x86_64.pkg.tar.zst && pacman -U --noconfirm aura-4.1.0-1-x86_64.pkg.tar.zst && \
+    aura --noconfirm -A sway-scroll-git dms-shell-bin && \
+    pacman -Sy --noconfirm gdm hyprland xdg-desktop-portal-wlr && \
+    systemctl enable gdm
+ 
+
 # https://github.com/bootc-dev/bootc/issues/1801
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
     pacman -S --noconfirm make git rust go-md2man && \
@@ -16,7 +25,6 @@ RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /usr/lib/dracut/dracut.conf.d/30-bootcrew-fix-bootc-module.conf && \
     printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" ostree bootc "' | tee "/usr/lib/dracut/dracut.conf.d/30-bootcrew-bootc-container-build.conf" && \
     dracut --force "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img" && \
-    pacman -Rns --noconfirm make git rust go-md2man && \
     pacman -S --clean --noconfirm
 
 # Necessary for general behavior expected by image-based systems
@@ -28,13 +36,7 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -" | tee -a "/usr/lib/tmpfiles.d/bootc-base-dirs.conf" && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | tee "/usr/lib/ostree/prepare-root.conf"
 
-
-RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
-    wget https://cdn77.cachyos.org/repo/x86_64/cachyos/yay-12.5.7-1-x86_64.pkg.tar.zst && pacman -U --noconfirm yay-12.5.7-1-x86_64.pkg.tar.zst && \
-    runuser -u nobody echo y | LANG=C yay --answerdiff None --answerclean None sway-scroll-git && \
-    pacman -Sy --noconfirm gdm && \
-    systemctl enable gdm
-    
+   
 RUN useradd -m c && usermod -aG wheel c
 RUN usermod -p "$(echo "changeme" | mkpasswd -s)" c
 
