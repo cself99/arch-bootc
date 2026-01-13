@@ -12,8 +12,9 @@ RUN pacman -Sy --noconfirm base dracut linux linux-firmware ostree btrfs-progs e
 RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     # aur is very questionable
     wget https://builds.garudalinux.org/repos/chaotic-aur/x86_64/aura-4.1.0-1-x86_64.pkg.tar.zst && pacman -U --noconfirm aura-4.1.0-1-x86_64.pkg.tar.zst && \
-    aura --noconfirm -A sway-scroll-git dms-shell-bin && \
-    pacman -Sy --noconfirm gdm hyprland xdg-desktop-portal-wlr && \
+    aura --noconfirm -A sway-scroll-git dms-shell-bin gpu-screen-recorder-ui zen-browser-bin && \
+    pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak && \
+    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
     systemctl enable gdm
  
 
@@ -37,8 +38,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | tee "/usr/lib/ostree/prepare-root.conf"
 
    
-RUN useradd -m c && usermod -aG wheel c
+RUN useradd -m c && echo 'c  ALL=(ALL:ALL) ALL' >> /etc/sudoers
 RUN usermod -p "$(echo "changeme" | mkpasswd -s)" c
+RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
 
 # https://bootc-dev.github.io/bootc/bootc-images.html#standard-metadata-for-bootc-compatible-images
 LABEL containers.bootc 1
