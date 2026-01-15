@@ -15,7 +15,17 @@ RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     aura --noconfirm -A sway-scroll-git dms-shell-bin gpu-screen-recorder-ui zen-browser-bin && \
     pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak helix pipewire pipewire-alsa pipewire-pulse mesa vulkan-radeon networkmanager bluez bluez-utils distrobox  && \
     #flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
-    systemctl enable gdm
+    systemctl enable gdm && pacman-key --init && \
+    curl -s https://repo.cider.sh/ARCH-GPG-KEY | pacman-key --add - && pacman-key --lsign-key A0CD6B993438E22634450CDD2A236C3F42A61682 && \
+    tee -a /etc/pacman.conf << 'EOF'
+
+# Cider Collective Repository
+[cidercollective]
+SigLevel = Required TrustedOnly
+Server = https://repo.cider.sh/arch
+EOF
+
+RUN pacman -Sy --noconfirm && pacman -S --noconfirm cider
  
 
 # https://github.com/bootc-dev/bootc/issues/1801
@@ -41,9 +51,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
 
 RUN cp -R /tmp/opt/opt/ /var/opt/ && rm -rf /tmp/opt
    
-RUN homectl create c && homectl update c --password-change-now --password="changeme" && echo 'ALL ALL=(ALL:ALL) ALL' >> /etc/sudoers && \
-    usermod -p "$(echo "changeme" | mkpasswd -s)" c && \
+RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root && echo 'ALL ALL=(ALL:ALL) ALL' >> /etc/sudoers && \
     rm /etc/scroll/config && wget -O /etc/scroll/config https://raw.githubusercontent.com/cself99/arch-bootc/refs/heads/main/scroll-config
+    wget homectl create --password-change-now=true c
 
 # https://bootc-dev.github.io/bootc/bootc-images.html#standard-metadata-for-bootc-compatible-images
 LABEL containers.bootc 1
