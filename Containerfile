@@ -11,12 +11,11 @@ RUN pacman -Sy --noconfirm base dracut linux linux-firmware ostree btrfs-progs e
 
 RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     # aur is very questionable
-    wget https://builds.garudalinux.org/repos/chaotic-aur/x86_64/aura-4.1.0-1-x86_64.pkg.tar.zst && pacman -U --noconfirm aura-4.1.0-1-x86_64.pkg.tar.zst && \
+    wget https://builds.garudalinux.org/repos/chaotic-aur/x86_64/aura-4.2.0-1-x86_64.pkg.tar.zst && pacman -U --noconfirm aura-4.2.0-1-x86_64.pkg.tar.zst && \
     aura --noconfirm -A sway-scroll-git dms-shell-bin gpu-screen-recorder-ui zen-browser-bin && \
     pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak helix pipewire pipewire-alsa pipewire-pulse mesa vulkan-radeon networkmanager bluez bluez-utils distrobox  && \
     #flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
-    systemctl enable gdm && \
-    sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && pacman -Sy steam
+    systemctl enable gdm
  
 
 # https://github.com/bootc-dev/bootc/issues/1801
