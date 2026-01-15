@@ -13,9 +13,10 @@ RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     # aur is very questionable
     wget https://builds.garudalinux.org/repos/chaotic-aur/x86_64/aura-4.1.0-1-x86_64.pkg.tar.zst && pacman -U --noconfirm aura-4.1.0-1-x86_64.pkg.tar.zst && \
     aura --noconfirm -A sway-scroll-git dms-shell-bin gpu-screen-recorder-ui zen-browser-bin && \
-    pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak && \
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
-    systemctl enable gdm
+    pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak helix pipewire pipewire-alsa pipewire-pulse mesa vulkan-radeon networkmanager bluez bluez-utils distrobox  && \
+    #flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
+    systemctl enable gdm && \
+    sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && pacman -Sy steam
  
 
 # https://github.com/bootc-dev/bootc/issues/1801
@@ -28,6 +29,8 @@ RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
     dracut --force "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img" && \
     pacman -S --clean --noconfirm
 
+RUN mkdir /tmp/opt && cp -R /opt/ /tmp/opt/
+
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     rm -rf /boot /home /root /usr/local /srv /opt /mnt /var /usr/lib/sysimage/log /usr/lib/sysimage/cache/pacman/pkg && \
@@ -37,10 +40,11 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -" | tee -a "/usr/lib/tmpfiles.d/bootc-base-dirs.conf" && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | tee "/usr/lib/ostree/prepare-root.conf"
 
+RUN cp -R /tmp/opt/opt/ /var/opt/ && rm -rf /tmp/opt
    
-RUN useradd -m c && echo 'c  ALL=(ALL:ALL) ALL' >> /etc/sudoers
-RUN usermod -p "$(echo "changeme" | mkpasswd -s)" c
-RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
+RUN homectl create c && homectl update c --password-change-now --password="changeme" && echo 'ALL ALL=(ALL:ALL) ALL' >> /etc/sudoers && \
+    usermod -p "$(echo "changeme" | mkpasswd -s)" c && \
+    rm /etc/scroll/config && wget -O /etc/scroll/config https://raw.githubusercontent.com/cself99/arch-bootc/refs/heads/main/scroll-config
 
 # https://bootc-dev.github.io/bootc/bootc-images.html#standard-metadata-for-bootc-compatible-images
 LABEL containers.bootc 1
