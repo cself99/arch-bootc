@@ -1,6 +1,9 @@
 {
-  "name": "c",
-  "realName": "c",
+  "userName": "c",
+  "realName": "christian",
+  "shell": "/bin/bash",
+  "uid": 60001,
+  "gid": 60001,
   "secret": {
     "password": [ "changeme" ]
   }
