@@ -16,17 +16,6 @@ RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak helix dhcpcd pipewire pipewire-alsa pipewire-pulse mesa vulkan-radeon networkmanager bluez bluez-utils distrobox  && \
     #flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
     systemctl enable gdm && pacman-key --init && \
-    curl -s https://repo.cider.sh/ARCH-GPG-KEY | pacman-key --add - && pacman-key --lsign-key A0CD6B993438E22634450CDD2A236C3F42A61682 && \
-    tee -a /etc/pacman.conf << 'EOF'
-
-# Cider Collective Repository
-[cidercollective]
-SigLevel = Required TrustedOnly
-Server = https://repo.cider.sh/arch
-EOF
-
-RUN pacman -Sy --noconfirm && pacman -S --noconfirm cider
- 
 
 # https://github.com/bootc-dev/bootc/issues/1801
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
