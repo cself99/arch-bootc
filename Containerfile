@@ -15,7 +15,7 @@ RUN pacman -Sy --noconfirm --needed git base-devel wget whois && \
     aura --noconfirm -A sway-scroll-git dms-shell-bin gpu-screen-recorder-ui zen-browser-bin && \
     pacman -Sy --noconfirm gdm xdg-desktop-portal-wlr ghostty restic grim slurp mpv flatpak helix dhcpcd pipewire pipewire-alsa pipewire-pulse mesa vulkan-radeon networkmanager bluez bluez-utils distrobox  && \
     #flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak -y install com.discordapp.Discord && \
-    systemctl enable gdm && pacman-key --init && \
+    systemctl enable gdm
 
 # https://github.com/bootc-dev/bootc/issues/1801
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
